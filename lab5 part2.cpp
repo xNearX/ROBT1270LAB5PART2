@@ -170,6 +170,8 @@ bool setCyclePenColors(char *strLine); // Parses line string to send a CYCLE_PEN
 
 void processCommand(int commandIndex, char *strCommandLine);   // processes a command string from the file
 int getCommandIndex(const char *strLine);                      // gets the command keyword index from a string
+INVERSE_SOLUTION inverseKinematics(TOOL_POSITION);
+TOOL_POSITION* getLinePoints(double, double, double, double, char, int*);
 
 //---------------------------------------------------------------------------------------------------------------------
 // DESCRIPTION:  Program to demonstrate basic control of the SCARA robot simulator
@@ -244,6 +246,8 @@ void processFileCommands()
       makeStringUpperCase(strLine);  // make line string all upper case (makes commands case-insensitive)
 
       //**** YOUR CODE FOR getCommandIndex and processCommand GOES HERE ****
+      commandIndex = getCommandIndex(strLine);
+      processCommand(commandIndex, strLine);
    }
    fclose(fi);
    fclose(flog);
@@ -314,7 +318,15 @@ void processCommand(int commandIndex, char *strCommandLine)
 
    if(bSuccess) dsprintf("Command sent to robot!\n\n");
 }
+int getCommandIndex(const char *strLine)
+{
+    char* temporaryString[MAX_LINE_SIZE] = {};
 
+    strcpy(*temporaryString, strLine);
+    strtok_s(*temporaryString);
+
+    return 0;
+}
 
 //---------------------------------------------------------------------------------------------------------------------
 // DESCRIPTION:  parses a command string that contains CYCLE_PEN_COLORS and sends command to robot if data ok.
