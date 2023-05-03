@@ -170,6 +170,8 @@ bool setCyclePenColors(char* strLine); // Parses line string to send a CYCLE_PEN
 bool setPenColor(char* strLine);
 bool setRotateJoint(char* strLine);
 bool setMoveTo(char* strLine);
+bool setMotorSpeed(char* strLine);
+bool setLine(char *strLine);
 
 void processCommand(int commandIndex, char* strCommandLine);   // processes a command string from the file
 int getCommandIndex(const char* strLine);                      // gets the command keyword index from a string
@@ -318,10 +320,10 @@ void processCommand(int commandIndex, char* strCommandLine)
       bSuccess = setMoveTo(strCommandLine);
       break;
    case MOTOR_SPEED:
-      //*** ADD CODE ***
+      bSuccess = setMotorSpeed(strCommandLine);
       break;
    case LINE:
-      //*** ADD CODE ***
+      bSuccess = setLine(strCommandLine);
       break;
    case ARC:
       //*** ADD CODE ***
@@ -587,20 +589,56 @@ bool setPenColor(char* strLine)
 bool setRotateJoint(char* strLine)
 {
    char *tok = NULL, *nextTok = NULL;
+   char *pGarbage;
    char cmd[COMMAND_STRING_ARRAY_SIZE];
 
    tok = strtok_s(strLine, seps, &nextTok);
+   
+   TOOL_POSITION toolPos = {strtod(strtok_s(NULL, seps, &nextTok), &pGarbage), strtod(strtok_s(NULL, seps, &nextTok), &pGarbage)};
 
+   INVERSE_SOLUTION isol = inverseKinematics(toolPos);
 
+   if(isol.bCanReach[LEFT] || isol.bCanReach[RIGHT])
+   {
+      sprintf_s(cmd, COMMAND_STRING_ARRAY_SIZE, "%s\n", strLine);
+      robot.Send(cmd);
+      return true;
+   }
+   else
+   {
+      return false;
+   }
+
+}
+
+bool setMoveTo(char *strLine)
+{
+   char *tok = NULL, *nextTok = NULL;
+   char *pGarbage;
+   char cmd[COMMAND_STRING_ARRAY_SIZE];
+   tok = strtok_s(strLine, seps, &nextTok);
 
 
 }
 
-bool setMoveTo(char* strLine)
+bool setMotorSpeed(char *strLine)
+{
+   char cmd[COMMAND_STRING_ARRAY_SIZE];
+
+   sprintf_s(cmd, COMMAND_STRING_ARRAY_SIZE, "%s\n", strLine);
+   robot.Send(cmd);
+
+   return true;
+}
+
+bool setLine(char *strLine)
 {
 
 
+
+   return true;
 }
+
 
 INVERSE_SOLUTION inverseKinematics(TOOL_POSITION toolPos)
 {

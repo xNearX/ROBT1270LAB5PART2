@@ -1,0 +1,50 @@
+Please enter the name of the commands file: Processing task2.in
+———————————————————
+Line 01: PEN_COLOR 255 0 0
+Command sent to robot!
+
+Line 02: MOTOR_SPEED LOW
+Command sent to robot!
+
+Line 03: LINE -400,300,400,300,LOW
+Command sent to robot!
+
+Line 04: HOME
+Command sent to robot!
+
+Line 05: PEN_COLOR 0,0,0
+Command sent to robot!
+
+Line 06: MOTOR_SPEED MEDIUM
+Command sent to robot!
+
+Line 07: LINE 300,400,300,-400,MEDIUM
+Command sent to robot!
+
+Line 08: HOME
+Command sent to robot!
+
+Line 09: PEN_COLOR 0 0 255
+Command sent to robot!
+
+Line 10: MOTOR_SPEED HIGH
+Command sent to robot!
+
+Line 11: LINE 400,-300,-400,-300, MEDIUM
+Command sent to robot!
+
+Line 12: HOME
+Command sent to robot!
+
+Line 13: PEN_COLOR 0 255 0
+Command sent to robot!
+
+Line 14: MOTOR_SPEED HIGH
+Command sent to robot!
+
+Line 15: LINE -300, -100, -300, 500, HIGH
+Command sent to robot!
+
+Line 16: END
+Command sent to robot!
+
