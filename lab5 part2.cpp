@@ -42,10 +42,10 @@ const unsigned char DEGREE_SYMBOL = 248;     // the degree symbol
 
 const double ERROR_VALUE = DBL_MAX;  // value for angles when robot can't reach
 
-const char *seps = "\t,\n ;:";       // for tokenizing the line string
+const char* seps = "\t,\n ;:";       // for tokenizing the line string
 
 // number of points on path for every 500 units of arc length
-const int LOW_RESOLUTION_POINTS_PER_500_UNITS = 11;  
+const int LOW_RESOLUTION_POINTS_PER_500_UNITS = 11;
 const int MEDIUM_RESOLUTION_POINTS_PER_500_UNITS = 31;
 const int HIGH_RESOLUTION_POINTS_PER_500_UNITS = 51;
 
@@ -57,15 +57,15 @@ const int BLANK_LINE = -2;                // used to signal a blank line in the 
 
 
 #define COMMAND_STRING_ARRAY_SIZE 502  // size of array to store commands written by sprintf_s for robot. 
-                                       // NOTE: 2 elements must be reserved for trailing '\n' and '\0'
+// NOTE: 2 elements must be reserved for trailing '\n' and '\0'
 
 #define MAX_LINE_SIZE 1002             // size of array to store a line from a file. 
                                        // NOTE: 2 elements must be reserved for trailing '\n' and '\0'
 
 
 enum ARM { LEFT, RIGHT };                                                  // left arm or right arm configuration
-enum MOTOR_SPEED{ MOTOR_SPEED_LOW, MOTOR_SPEED_MEDIUM, MOTOR_SPEED_HIGH }; // motor speed
-enum RESOLUTION{ RESOLUTION_LOW, RESOLUTION_MEDIUM, RESOLUTION_HIGH };     // motor speed
+enum MOTOR_SPEED { MOTOR_SPEED_LOW, MOTOR_SPEED_MEDIUM, MOTOR_SPEED_HIGH }; // motor speed
+enum RESOLUTION { RESOLUTION_LOW, RESOLUTION_MEDIUM, RESOLUTION_HIGH };     // motor speed
 enum CURRENT_ANGLES { GET_CURRENT_ANGLES, UPDATE_CURRENT_ANGLES };         // used to get/update current SCARA angles
 
 enum COMMAND_INDEX  // list of all command indexes
@@ -80,7 +80,7 @@ enum COMMAND_INDEX  // list of all command indexes
 typedef struct COMMAND
 {
    const int index;
-   const char *strCommand;
+   const char* strCommand;
 }
 COMMAND;
 
@@ -94,7 +94,7 @@ RGB;
 // SCARA tooltip coordinates
 typedef struct TOOL_POSITION
 {
-   double x, y;  
+   double x, y;
 }
 TOOL_POSITION;
 
@@ -139,17 +139,17 @@ PATH_CHECK;
 //----------------------------- Globals -------------------------------------------------------------------------------
 // global array of command keyword string to command index associations
 // NOTE:  CYCLE_PEN_COLORS must preceed PEN_COLOR
-const COMMAND m_Commands[NUM_COMMANDS] = {{ROTATE_JOINT, "ROTATE_JOINT"}, {MOTOR_SPEED, "MOTOR_SPEED"},
+const COMMAND m_Commands[NUM_COMMANDS] = { {ROTATE_JOINT, "ROTATE_JOINT"}, {MOTOR_SPEED, "MOTOR_SPEED"},
                                           {PEN_UP, "PEN_UP"}, {PEN_DOWN, "PEN_DOWN"},
                                           {CYCLE_PEN_COLORS, "CYCLE_PEN_COLORS"}, {PEN_COLOR, "PEN_COLOR"},
                                           {CLEAR_TRACE, "CLEAR_TRACE"},
-                                          {CLEAR_REMOTE_COMMAND_LOG, "CLEAR_REMOTRE_COMMAND_LOG"},
+                                          {CLEAR_REMOTE_COMMAND_LOG, "CLEAR_REMOTE_COMMAND_LOG"},
                                           {CLEAR_POSITION_LOG, "CLEAR_POSITION_LOG"},
                                           {SHUTDOWN_SIMULATION, "SHUTDOWN_SIMULATION"}, {END, "END"}, {HOME, "HOME"},
-                                          {LINE, "LINE"}, {ARC, "ARC"}, {MOVE_TO, "MOVE_TO"}};
+                                          {LINE, "LINE"}, {ARC, "ARC"}, {MOVE_TO, "MOVE_TO"} };
 
 CRobot robot;        // the global robot Class.  Can be used everywhere
-FILE *flog = NULL;   // the global log file
+FILE* flog = NULL;   // the global log file
 
 //----------------------------- Function Prototypes -------------------------------------------------------------------
 bool flushInputBuffer();               // flushes any characters left in the standard input buffer
@@ -160,18 +160,22 @@ double radToDeg(double);               // returns angle in degrees from input an
 double mapAngle(double);               // make sure inverseKinematic angled are mapped in range robot understands
 void pauseRobotThenClear();            // pauses the robot for screen capture, then clears everything
 void printHLine(int N);                // prints a solid line to the console
-int dsprintf(char const *, ...);       // prints to log file and to console 
-void makeStringUpperCase(char *);      // makes an input string all upper case
+int dsprintf(char const*, ...);       // prints to log file and to console 
+void makeStringUpperCase(char*);      // makes an input string all upper case
 size_t getNumPathPoints(double, int);  // gets the number of points on a path based on arc length and resolution value
-void robotAngles(JOINT_ANGLES *, int); // gets or updates the current SCARA angles
+void robotAngles(JOINT_ANGLES*, int); // gets or updates the current SCARA angles
 
 void processFileCommands();            // gets commands out of a file and processes them for robot control
-bool setCyclePenColors(char *strLine); // Parses line string to send a CYCLE_PEN_COLORS command to robot
+bool setCyclePenColors(char* strLine); // Parses line string to send a CYCLE_PEN_COLORS command to robot
+bool setPenColor(char* strLine);
+bool setRotateJoint(char* strLine);
+bool setMoveTo(char* strLine);
 
-void processCommand(int commandIndex, char *strCommandLine);   // processes a command string from the file
-int getCommandIndex(const char *strLine);                      // gets the command keyword index from a string
-INVERSE_SOLUTION inverseKinematics(TOOL_POSITION);
-TOOL_POSITION* getLinePoints(double, double, double, double, char, int*);
+void processCommand(int commandIndex, char* strCommandLine);   // processes a command string from the file
+int getCommandIndex(const char* strLine);                      // gets the command keyword index from a string
+
+INVERSE_SOLUTION inverseKinematics(TOOL_POSITION); // get left/right arm joint angles from x,y pos
+
 
 //---------------------------------------------------------------------------------------------------------------------
 // DESCRIPTION:  Program to demonstrate basic control of the SCARA robot simulator
@@ -180,7 +184,7 @@ TOOL_POSITION* getLinePoints(double, double, double, double, char, int*);
 int main()
 {
    // open connection with robot
-   if(!robot.Initialize()) return 0;
+   if (!robot.Initialize()) return 0;
 
    processFileCommands();
 
@@ -197,7 +201,7 @@ void processFileCommands()
 {
    char strFileName[MAX_PATH];                  // stores input file name
    char strLine[MAX_LINE_SIZE];                 // stores one line out of input file
-   FILE *fi = NULL;                             // input file handle
+   FILE* fi = NULL;                             // input file handle
    errno_t err;                                 // stores fopen_s error value
    int numChars;                                // used to draw dividing line
    int nLine;                                   // file line number
@@ -205,7 +209,7 @@ void processFileCommands()
 
    // open the log file (mirrors console output to log.txt if dsprintf used instead of printf)
    err = fopen_s(&flog, "log.txt", "w");
-   if(err != 0 || flog == NULL)
+   if (err != 0 || flog == NULL)
    {
       dsprintf("Cannot open log.txt for writing!  Press ENTER to end program...");
       waitForEnterKey();
@@ -213,19 +217,19 @@ void processFileCommands()
    }
 
    // get the input file
-   while(true)
+   while (true)
    {
       dsprintf("Please enter the name of the commands file: ");
       fgets(strFileName, MAX_PATH, stdin);
       strFileName[strlen(strFileName) - 1] = '\0';  // remove newline character
 
       err = fopen_s(&fi, strFileName, "r");
-      if(err == 0 && fi != NULL) break;
+      if (err == 0 && fi != NULL) break;
 
       dsprintf("Failed to open %s!\nError code = %d", strFileName, err);
-      if(err == ENOENT)
+      if (err == ENOENT)
          dsprintf(" (File not found!  Check name/path)\n");
-      else if(err == EACCES)
+      else if (err == EACCES)
          dsprintf(" (Permission Denied! Is the file opened in another program?)\n");
       else
          dsprintf("\n");
@@ -235,9 +239,9 @@ void processFileCommands()
 
    // get each line from the input file and process the command
    nLine = 0;
-   while(fgets(strLine, MAX_LINE_SIZE, fi) != NULL)
+   while (fgets(strLine, MAX_LINE_SIZE, fi) != NULL)
    {
-      if(strstr(strLine, "\n") == NULL) strcat_s(strLine, MAX_LINE_SIZE, "\n"); // needed for last line
+      if (strstr(strLine, "\n") == NULL) strcat_s(strLine, MAX_LINE_SIZE, "\n"); // needed for last line
 
       nLine++;
       dsprintf("Line %02d: %s", nLine, strLine);  // echo the line
@@ -246,8 +250,18 @@ void processFileCommands()
       makeStringUpperCase(strLine);  // make line string all upper case (makes commands case-insensitive)
 
       //**** YOUR CODE FOR getCommandIndex and processCommand GOES HERE ****
+
+      printf("Looking for command\n");
       commandIndex = getCommandIndex(strLine);
-      processCommand(commandIndex, strLine);
+      if (commandIndex != COMMAND_INDEX_NOT_FOUND)
+      {
+         printf("Command was found\n");
+         processCommand(commandIndex, strLine);
+      }
+      else
+      {
+         printf("Command not found\n");
+      }
    }
    fclose(fi);
    fclose(flog);
@@ -259,95 +273,111 @@ void processFileCommands()
 // ARGUMENTS:    commandIndex:  index of the command keyword string
 //               strCommandLine: command line from the file in the form of a string
 // RETURN VALUE: none
-void processCommand(int commandIndex, char *strCommandLine)
+void processCommand(int commandIndex, char* strCommandLine)
 {
    bool bSuccess = true;
-   JOINT_ANGLES homeAngles = {0.0, 0.0};
+   JOINT_ANGLES homeAngles = { 0.0, 0.0 };
 
-   switch(commandIndex)
+   switch (commandIndex)
    {
-      case PEN_UP:
-         robot.Send("PEN_UP\n");
-         break;
-      case PEN_DOWN:
-         robot.Send("PEN_DOWN\n");
-         break;
-      case CLEAR_TRACE:
-         robot.Send("CLEAR_TRACE\n");
-         break;
-      case CLEAR_REMOTE_COMMAND_LOG:
-         robot.Send("CLEAR_REMOTE_COMMAND_LOG\n");
-         break;
-      case CLEAR_POSITION_LOG:
-         robot.Send("CLEAR_POSITION_LOG\n");
-         break;
-      case SHUTDOWN_SIMULATION:
-         robot.Send("SHUTDOWN_SIMULATION\n");
-         break;
-      case END:
-         robot.Send("END\n");
-         break;
-      case HOME:
-         robot.Send("HOME\n");
-         robotAngles(&homeAngles, UPDATE_CURRENT_ANGLES);
-         break;
-      case PEN_COLOR:
-         //*** ADD CODE ***
-         break;
-      case CYCLE_PEN_COLORS:
-         bSuccess = setCyclePenColors(strCommandLine);
-         break;
-      case ROTATE_JOINT:
-         //*** ADD CODE ***
-         break;
-      case MOVE_TO:
-         //*** ADD CODE ***
-         break;
-      case MOTOR_SPEED:
-         //*** ADD CODE ***
-         break;
-      case LINE:
-         //*** ADD CODE ***
-         break;
-      case ARC:
-         //*** ADD CODE ***
-         break;
-      default:
-         dsprintf("unknown command!\n");
+   case PEN_UP:
+      robot.Send("PEN_UP\n");
+      break;
+   case PEN_DOWN:
+      robot.Send("PEN_DOWN\n");
+      break;
+   case CLEAR_TRACE:
+      robot.Send("CLEAR_TRACE\n");
+      break;
+   case CLEAR_REMOTE_COMMAND_LOG:
+      robot.Send("CLEAR_REMOTE_COMMAND_LOG\n");
+      break;
+   case CLEAR_POSITION_LOG:
+      robot.Send("CLEAR_POSITION_LOG\n");
+      break;
+   case SHUTDOWN_SIMULATION:
+      robot.Send("SHUTDOWN_SIMULATION\n");
+      break;
+   case END:
+      robot.Send("END\n");
+      break;
+   case HOME:
+      robot.Send("HOME\n");
+      robotAngles(&homeAngles, UPDATE_CURRENT_ANGLES);
+      break;
+   case PEN_COLOR:
+      bSuccess = setPenColor(strCommandLine);
+      break;
+   case CYCLE_PEN_COLORS:
+      bSuccess = setCyclePenColors(strCommandLine);
+      break;
+   case ROTATE_JOINT:
+      bSuccess = setRotateJoint(strCommandLine);
+      break;
+   case MOVE_TO:
+      bSuccess = setMoveTo(strCommandLine);
+      break;
+   case MOTOR_SPEED:
+      //*** ADD CODE ***
+      break;
+   case LINE:
+      //*** ADD CODE ***
+      break;
+   case ARC:
+      //*** ADD CODE ***
+      break;
+   default:
+      dsprintf("unknown command!\n");
    }
 
-   if(bSuccess) dsprintf("Command sent to robot!\n\n");
+   if (bSuccess) dsprintf("Command sent to robot!\n\n");
 }
-int getCommandIndex(const char *strLine)
+int getCommandIndex(const char* strLine)
 {
-    char* temporaryString[MAX_LINE_SIZE] = {};
+   char* tok = NULL;
+   char* nextTok = NULL;
+   char strLineCopy[MAX_LINE_SIZE];
 
-    strcpy(*temporaryString, strLine);
-    strtok_s(*temporaryString);
+   if (strLine == NULL || strlen(strLine) == 0)
+   {
+      return BLANK_LINE;
+   }
 
-    return 0;
+   strcpy_s(strLineCopy, MAX_LINE_SIZE, strLine);
+   tok = strtok_s(strLineCopy, seps, &nextTok);
+
+   if (tok == NULL) {
+      return COMMAND_INDEX_NOT_FOUND;
+   }
+
+   for (int i = 0; i < NUM_COMMANDS; i++) {
+      if (strcmp(tok, m_Commands[i].strCommand) == 0) {
+         return m_Commands[i].index;
+      }
+   }
+   return COMMAND_INDEX_NOT_FOUND;
 }
 
 //---------------------------------------------------------------------------------------------------------------------
 // DESCRIPTION:  parses a command string that contains CYCLE_PEN_COLORS and sends command to robot if data ok.
 // ARGUMENTS:    strLine:  A file line string.
 // RETURN VALUE: true if command sent to robot, false if not.
-bool setCyclePenColors(char *strLine)
+bool setCyclePenColors(char* strLine)
 {
-   char *tok = NULL, *nextTok = NULL;              // for tokenizing the line string
+   char* tok = NULL, * nextTok = NULL;              // for tokenizing the line string
    char cmd[COMMAND_STRING_ARRAY_SIZE];            // command string for sprintf_s
 
    tok = strtok_s(strLine, seps, &nextTok); // CYCLE_PEN_COLORS keyword (discarded)
 
    tok = strtok_s(NULL, seps, &nextTok);  // parameter should be "ON" or "OFF"
-   if(tok == NULL)
+   if (tok == NULL)
    {
       dsprintf("Missing CYCLE_PEN_COLORS parameter!\n\n");
       return false;
    }
 
    // Got token.  Check if token is "ON" or "OFF"
-   if(strcmp(tok, "ON") != 0 && strcmp(tok, "OFF") != 0)
+   if (strcmp(tok, "ON") != 0 && strcmp(tok, "OFF") != 0)
    {
       dsprintf("Invalid parameter for CYCLE_PEN_COLORS!  Must be ON or OFF.\n\n");
       return false;
@@ -365,19 +395,19 @@ bool setCyclePenColors(char *strLine)
 //               getOrUpdate:  set to UPDATE_CURRENT_ANGLES to update the current angles
 //                             set to GET_CURRENT_ANGLES to retrieve the current angles
 // RETURN VALUE: none
-void robotAngles(JOINT_ANGLES *pAngles, int getOrUpdate)
+void robotAngles(JOINT_ANGLES* pAngles, int getOrUpdate)
 {
-   static JOINT_ANGLES currentAngles = {0.0, 0.0};   // NOTE:  robot must be in home position when program starts!
+   static JOINT_ANGLES currentAngles = { 0.0, 0.0 };   // NOTE:  robot must be in home position when program starts!
 
-   if(pAngles == NULL) // safety
+   if (pAngles == NULL) // safety
    {
       dsprintf("NULL JOINT_ANGLES pointer! (robotAngles)");
       return;
    }
 
-   if(getOrUpdate == UPDATE_CURRENT_ANGLES)
+   if (getOrUpdate == UPDATE_CURRENT_ANGLES)
       currentAngles = *pAngles;
-   else if(getOrUpdate == GET_CURRENT_ANGLES)
+   else if (getOrUpdate == GET_CURRENT_ANGLES)
       *pAngles = currentAngles;
    else
       dsprintf("Unknown value for getOrUpdate (robotAngles)");
@@ -407,9 +437,9 @@ double mapAngle(double angRad)
    angRad = fmod(angRad, 2.0 * PI);  // put in range -2*PI <= ang <= +2*PI
 
    // map into range -PI <= ang <= +PI
-   if(angRad > PI)
+   if (angRad > PI)
       angRad -= 2.0 * PI;
-   else if(angRad < -PI)
+   else if (angRad < -PI)
       angRad += 2.0 * PI;
 
    return angRad;
@@ -444,9 +474,9 @@ bool flushInputBuffer()
    bool bHasGarbage = false;
 
    // exit loop when all characters are flushed
-   while((ch = getchar()) != '\n' && ch != EOF)
+   while ((ch = getchar()) != '\n' && ch != EOF)
    {
-      if(!bHasGarbage) bHasGarbage = true;
+      if (!bHasGarbage) bHasGarbage = true;
    }
    return bHasGarbage;
 }
@@ -458,7 +488,7 @@ bool flushInputBuffer()
 void waitForEnterKey()
 {
    unsigned char ch;
-   if((ch = (unsigned char)getchar()) != EOF && ch != '\n') flushInputBuffer();
+   if ((ch = (unsigned char)getchar()) != EOF && ch != '\n') flushInputBuffer();
 }
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -478,7 +508,7 @@ void printHLine(int N)
 {
    int n;
 
-   for(n = 0; n < N; n++)
+   for (n = 0; n < N; n++)
    {
       // can't use dsprintf because characters are different because code pages are different
       // console = code page 437, file = code page 1252
@@ -492,11 +522,11 @@ void printHLine(int N)
 // DESCRIPTION:  makes a string all upper case characters
 // ARGUMENTS:    str:  the string memory address
 // RETURN VALUE: none
-void makeStringUpperCase(char *str)
+void makeStringUpperCase(char* str)
 {
-   if(str == NULL) return; // safety!
+   if (str == NULL) return; // safety!
 
-   for(size_t i = 0; i < strlen(str); i++) str[i] = (char)toupper(str[i]);
+   for (size_t i = 0; i < strlen(str); i++) str[i] = (char)toupper(str[i]);
 }
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -504,12 +534,12 @@ void makeStringUpperCase(char *str)
 // ARGUMENTS:    f:  the file handle
 //               fmt, ...: for variable number of parameters
 // RETURN VALUE: the number of characters printed
-int dsprintf(char const *fmt, ...)
+int dsprintf(char const* fmt, ...)
 {
    va_list args;
    int n1 = -1, n2 = -1;
 
-   if(flog != NULL)
+   if (flog != NULL)
    {
       va_start(args, fmt);
       n1 = vfprintf(flog, fmt, args);
@@ -519,7 +549,7 @@ int dsprintf(char const *fmt, ...)
    n2 = vfprintf(stdout, fmt, args);
    va_end(args);
 
-   if(n2 < n1) n1 = n2;
+   if (n2 < n1) n1 = n2;
    return n1;
 }
 //---------------------------------------------------------------------------------------------------------------------
@@ -531,9 +561,9 @@ size_t getNumPathPoints(double len, int resolution)
 {
    size_t NP;  // number of points used to check/draw the path points
 
-   if(resolution == RESOLUTION_LOW)
+   if (resolution == RESOLUTION_LOW)
       NP = (size_t)nint((len / 500.0) * (double)LOW_RESOLUTION_POINTS_PER_500_UNITS);
-   else if(resolution == RESOLUTION_MEDIUM)
+   else if (resolution == RESOLUTION_MEDIUM)
       NP = (size_t)nint((len / 500.0) * (double)MEDIUM_RESOLUTION_POINTS_PER_500_UNITS);
    else
       NP = (size_t)nint((len / 500.0) * (double)HIGH_RESOLUTION_POINTS_PER_500_UNITS);
@@ -543,3 +573,93 @@ size_t getNumPathPoints(double len, int resolution)
    return NP;
 }
 
+bool setPenColor(char* strLine)
+{
+   char cmd[COMMAND_STRING_ARRAY_SIZE];
+
+   sprintf_s(cmd, COMMAND_STRING_ARRAY_SIZE, "%s\n", strLine);
+   robot.Send(cmd);
+
+   return true;
+
+}
+
+bool setRotateJoint(char* strLine)
+{
+   char *tok = NULL, *nextTok = NULL;
+   char cmd[COMMAND_STRING_ARRAY_SIZE];
+
+   tok = strtok_s(strLine, seps, &nextTok);
+
+
+
+
+}
+
+bool setMoveTo(char* strLine)
+{
+
+
+}
+
+INVERSE_SOLUTION inverseKinematics(TOOL_POSITION toolPos)
+{
+   INVERSE_SOLUTION isol = { ERROR_VALUE, ERROR_VALUE, ERROR_VALUE, ERROR_VALUE, false, false };
+
+   double distance = 0.0;
+   double beta = 0.0;
+   double alpha = 0.0;
+   double tanExpression = 0.0;
+
+   double leftTheta1 = 0.0;
+   double leftTheta2 = 0.0;
+   double leftTheta1Deg = 0.0;
+   double leftTheta2Deg = 0.0;
+
+   double rightTheta1 = 0.0;
+   double rightTheta2 = 0.0;
+   double rightTheta1Deg = 0.0;
+   double rightTheta2Deg = 0.0;
+
+   distance = sqrt(toolPos.x * toolPos.x + toolPos.y * toolPos.y);
+
+   // test that distance from robot origin to entered point is within range
+   if (distance > LMIN && distance < LMAX)
+   {
+      beta = atan2(toolPos.y, toolPos.x);
+      alpha = acos((L2 * L2 - distance * distance - L1 * L1) / (-2 * distance * L1));
+
+      leftTheta1 = mapAngle(beta + alpha);
+      tanExpression = atan2(toolPos.y - L1 * sin(leftTheta1), toolPos.x - L1 * cos(leftTheta1));
+      leftTheta2 = mapAngle(tanExpression - leftTheta1);
+
+
+      leftTheta1Deg = radToDeg(leftTheta1);
+      leftTheta2Deg = radToDeg(leftTheta2);
+
+      if (fabs(leftTheta1Deg) < ABS_THETA1_DEG_MAX && fabs(leftTheta2Deg) < ABS_THETA2_DEG_MAX)
+      {
+         isol.jointAngles[LEFT].theta1Deg = leftTheta1Deg;
+         isol.jointAngles[LEFT].theta2Deg = leftTheta2Deg;
+         isol.bCanReach[LEFT] = true;
+
+      }
+
+      rightTheta1 = mapAngle(beta - alpha);
+      tanExpression = atan2(toolPos.y - L1 * sin(rightTheta1), toolPos.x - L1 * cos(rightTheta1));
+      rightTheta2 = mapAngle(tanExpression - rightTheta1);
+
+      rightTheta1Deg = radToDeg(rightTheta1);
+      rightTheta2Deg = radToDeg(rightTheta2);
+
+      if (fabs(rightTheta1Deg) < ABS_THETA1_DEG_MAX && fabs(rightTheta2Deg) < ABS_THETA2_DEG_MAX)
+      {
+         isol.jointAngles[RIGHT].theta1Deg = rightTheta1Deg;
+         isol.jointAngles[RIGHT].theta2Deg = rightTheta2Deg;
+         isol.bCanReach[RIGHT] = true;
+
+      }
+   }
+   return isol;
+
+}
